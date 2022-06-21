@@ -10,6 +10,7 @@ export const CSVComponent = ({
   formTitle,
   colDefs,
   DataHandler,
+  className,
 }) => {
   const [transactionData, setTransactionData] = useState([]);
   const ColumnNames = {};
@@ -50,9 +51,9 @@ export const CSVComponent = ({
   };
 
   return (
-    <div className='relative flex items-center text-xs text-center'>
+    <div className={className + ' flex items-center text-xs text-center'}>
       <button
-        Title='دانلود فایل csv'
+        title='دانلود فایل csv'
         onClick={getTransactionData}
         className={`hidden md:flex transition-all p-[0.2rem] items-center justify-center text-right rounded-t cursor-pointer mr-1 hover:bg-blue-300 text-black text-xs bg-gray-100`}
       >
@@ -67,7 +68,7 @@ export const CSVComponent = ({
         separator={','}
         enclosingCharacter={' '}
         dir='ltr'
-      ></CSVLink>
+      />
     </div>
   );
 };

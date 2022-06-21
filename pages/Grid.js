@@ -18,7 +18,7 @@ export default function Monitors() {
   const [getMonitorsReq, { data: Response, isLoading }] =
     RTKapi.useLazyGetMonitorsQuery();
   const [pageNum, setPageNum] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(11);
+  const [itemsPerPage, setItemsPerPage] = useState(18);
 
   const dispatch = useDispatch();
   const { data: MonList } = useGetLOVMonitorsQuery();
@@ -73,14 +73,15 @@ export default function Monitors() {
       headerName: 'مدل',
       field: 'LOVMonitors.Model',
       type: 'select',
-      choises: MonList,
-      optionTitle: ['مدلModel: ', ' مشخصاتSpec:'],
-      optionSource: 'LOVMonitors.Id',
       className: 'font-sans',
       rules: ['required'],
       //   nonFilterable: true,
     },
-    { headerName: 'کد اموال', field: 'PropertyCode', type: 'text' },
+    { headerName: 'کد اموال', field: 'PropertyCode' },
+    { headerName: 'نام', field: 'Users.Name' },
+    { headerName: 'نام خانوادگی', field: 'Users.Family' },
+    { headerName: 'استان', field: 'Provinces.Province' },
+    { headerName: 'واحد', field: 'LOVDepartments.Department' },
   ];
 
   const DataHandler = (qry) => {
@@ -91,6 +92,10 @@ export default function Monitors() {
       ...row,
       ix: ix,
       'LOVMonitors.Model': row.LOVMonitors?.Model,
+      'Users.Name': row.Users?.Name,
+      'Users.Family': row.Users?.Family,
+      'Provinces.Province': row.Provinces?.Province,
+      'LOVDepartments.Department': row.LOVDepartments?.Department,
     }));
     return rowdata;
   };
@@ -107,6 +112,7 @@ export default function Monitors() {
         formTitle={formTitle}
         getAllRecords={getAllRecords}
         DataHandler={DataHandler}
+        className='absolute top-0 left-0 z-10 rounded-full'
       />
       <DataGrid
         colDefs={colDefs}
