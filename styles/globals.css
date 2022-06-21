@@ -20,3 +20,74 @@ a {
 * {
   box-sizing: border-box;
 }
+
+/* @layer components {
+  .react_paginate {
+    @apply px-4 py-2 font-semibold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+  }
+} */
+@layer base {
+  .paginationContainer {
+    ul {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      font-family: Anjoman;
+    }
+    li {
+      min-width: 2.1em;
+      text-align: center;
+      margin: 2px;
+      padding: 0px 2px;
+      border: 1px solid #ccc;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 14.6px;
+    }
+
+    .pagination {
+      list-style-type: none;
+      .pageLi {
+        /* background-color: red; */
+        /* width: 100%; */
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .pageA {
+        display: block;
+        width: 100%;
+        /* background-color: red; */
+      }
+      .prevLi,
+      .nextLi {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .treeDot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        list-style-type: none;
+        color: #000;
+      }
+      .activePage {
+        background-color: #88aaff;
+      }
+    }
+    .tagliPage {
+      list-style-type: none;
+    }
+    .tagLiEllipsis {
+      list-style-type: none;
+      width: 2rem;
+      height: 2rem;
+      /* width: 20px; */
+      color: #ff0;
+    }
+  }
+}

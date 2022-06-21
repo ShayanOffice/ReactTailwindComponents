@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const authToken = require('./middlewares/authToken');
 const router = require('express').Router();
 // sort ساختار => {[User1]: { Identity: 'Modelx', Sorts: { colA1: 'asc', colB1: '', colC1: 'desc', ...}},
 //             => [User2]: { Identity: 'Modely', Sorts: { colA2: '', colB2: 'desc', colC2: 'desc', ...}},
@@ -30,9 +29,9 @@ function orderbyClause(userId) {
   return orderBy;
 }
 
-router.get('/', authToken, async (req, res) => {
+router.get('/',  async (req, res) => {
   try {
-    sorts[req.user.Id] = {};
+    sorts["userID"] = {};
     // console.warn(sorts);
     res.status(200).json('sorts Cleared');
   } catch (error) {
@@ -42,7 +41,7 @@ router.get('/', authToken, async (req, res) => {
   }
 });
 
-router.post('/', authToken, async (req, res) => {
+router.post('/',  async (req, res) => {
   try {
     let obj = {};
     Object.keys(req.body.Sort).forEach((key) => {
@@ -50,7 +49,7 @@ router.post('/', authToken, async (req, res) => {
     });
 
     if (req.body.Identity) {
-      sorts[req.user.Id] = {
+      sorts["userID"] = {
         Identity: req.body.Identity,
         Sorts: obj,
       };

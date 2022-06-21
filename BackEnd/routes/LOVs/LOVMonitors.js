@@ -1,12 +1,9 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
-const authToken = require('../../middlewares/authToken');
-const userLevelCheck = require('../../middlewares/userLevelCheck');
-const { AddLog } = require('../logs');
 const { LOVMonitors } = new PrismaClient();
 
 /////////////////////Create/////////////////////
-router.post('/', authToken, userLevelCheck(2), async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const t = await LOVMonitors.create({
       data: {
@@ -15,7 +12,6 @@ router.post('/', authToken, userLevelCheck(2), async (req, res) => {
       },
     });
     res.status(200).send(t);
-    await AddLog(req.user.Id, req.body, 'افزودن مدل صفحه‌نمایش', t, 4);
   } catch (error) {
     const message = error.message; //?.replace(/(.*\n)*\n*([^\s].*)\n*/, `$2`);
     console.log(message);
@@ -24,7 +20,7 @@ router.post('/', authToken, userLevelCheck(2), async (req, res) => {
 });
 
 /////////////////////Read/////////////////////
-router.get('/', authToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const monitors = await LOVMonitors.findMany({
       select: {
@@ -42,7 +38,7 @@ router.get('/', authToken, async (req, res) => {
 });
 
 /////////////////////Update/////////////////////
-router.post('/:Id', authToken, userLevelCheck(2), async (req, res) => {
+router.post('/:Id', async (req, res) => {
   try {
     const paramId = parseInt(req.params.Id);
     const monitors = await LOVMonitors.findMany({
@@ -67,7 +63,6 @@ router.post('/:Id', authToken, userLevelCheck(2), async (req, res) => {
       },
     });
     res.status(200).send(t);
-    await AddLog(req.user.Id, req.body, 'ویرایش مدل صفحه‌نمایش', t, 6);
   } catch (error) {
     const message = error.message; //?.replace(/(.*\n)*\n*([^\s].*)\n*/, `$2`);
     console.log(message);
@@ -76,7 +71,7 @@ router.post('/:Id', authToken, userLevelCheck(2), async (req, res) => {
 });
 
 /////////////////////Delete/////////////////////
-router.delete('/:Id', authToken, userLevelCheck(2), async (req, res) => {
+router.delete('/:Id', async (req, res) => {
   try {
     const paramId = parseInt(req.params.Id);
     const monitors = await LOVMonitors.findMany({
@@ -97,7 +92,6 @@ router.delete('/:Id', authToken, userLevelCheck(2), async (req, res) => {
       },
     });
     res.status(200).send(t);
-    await AddLog(req.user.Id, req.body, 'حذف صفحه‌نمایش', t, 5);
   } catch (error) {
     const message = error.message; //?.replace(/(.*\n)*\n*([^\s].*)\n*/, `$2`);
     console.log(message);

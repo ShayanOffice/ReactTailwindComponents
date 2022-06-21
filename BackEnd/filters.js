@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const authToken = require('./middlewares/authToken');
 const router = require('express').Router();
 // هر کار با فرض کار بر روی فقط یک فرم، فقط یک ترکیب فیلتر میزند
 // ساختار filters => {[User1]: { Identity: 'Modelx', Params: { paramA: 'valA' , paramB: 'ValB', ... },
@@ -29,9 +28,9 @@ function generateWhereClause(userId) {
   return whereClause;
 }
 
-router.get('/', authToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    filters[req.user.Id] = {}; // پاک کردن پارامتر های فیلتر کاربر متقاضی
+    filters['userID'] = {}; // پاک کردن پارامتر های فیلتر کاربر متقاضی
     // console.warn(filters);
     res.status(200).json('فیلترهای شما پاک شد.');
   } catch (error) {
@@ -40,12 +39,12 @@ router.get('/', authToken, async (req, res) => {
     res.status(400).send({ error, message });
   }
 });
-router.post('/', authToken, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     if (req.body.Identity) {
       const Identity = req.body.Identity; // استخراج شناسه از درخواست فیلتر
       delete req.body['Identity']; // حذف شناسه قبلی
-      filters[req.user.Id] = { Params: req.body, Identity }; // ساخت بدنه فیلتر با شناسه جدید
+      filters['userID'] = { Params: req.body, Identity }; // ساخت بدنه فیلتر با شناسه جدید
     }
     // console.warn(filters);
     res.status(200).json('فیلتر آماده شد');

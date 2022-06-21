@@ -3,11 +3,9 @@ const { PrismaClient } = require('@prisma/client');
 const { generateItemsSkipTake } = require('../pagings');
 const { generateWhereClause } = require('../filters');
 const { orderbyClause } = require('../sort');
-const authToken = require('../middlewares/authToken');
-const { AddLog } = require('./logs');
 const { Monitors } = new PrismaClient();
 /////////////////////Create/////////////////////
-router.post('/', authToken, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const monitor = await Monitors.create({
       data: {
@@ -18,13 +16,6 @@ router.post('/', authToken, async (req, res) => {
         PropertyCode: req.body.PropertyCode,
       },
     });
-    await AddLog(
-      req.user.Id,
-      req.body,
-      'افزودن صفحه نمایش' + 'req.socket.remoteAddress',
-      monitor,
-      4
-    );
     res.status(200).json(monitor);
   } catch (error) {
     const message = error.message; //.replace(/(.*\n)*\n*([^\s].*)\n*/, `$2`);
@@ -34,9 +25,9 @@ router.post('/', authToken, async (req, res) => {
 });
 
 /////////////////////Read/////////////////////
-router.get('/', authToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    var whereClause = generateWhereClause(req.user.Id);
+    var whereClause = generateWhereClause('userID');
     const itms = await Monitors.findMany({
       select: {
         Id: true,
@@ -69,7 +60,7 @@ router.get('/', authToken, async (req, res) => {
         },
       },
       where: whereClause,
-      orderBy: orderbyClause(req.user.Id),
+      orderBy: orderbyClause('userID'),
     });
     res.json(itms);
   } catch (error) {
@@ -81,11 +72,11 @@ router.get('/', authToken, async (req, res) => {
 
 router.get(
   '/pageItems::pageItems&pageNum::pageNum',
-  authToken,
+
   async (req, res) => {
     try {
       const { pageItems, pageNum } = req.params;
-      var whereClause = generateWhereClause(req.user.Id);
+      var whereClause = generateWhereClause('userID');
       const { itemsCount, paging, pageCount } = await generateItemsSkipTake(
         Monitors,
         whereClause,
@@ -125,7 +116,7 @@ router.get(
         },
         ...paging,
         where: whereClause,
-        orderBy: orderbyClause(req.user.Id),
+        orderBy: orderbyClause('userID'),
       });
       res.json({ items: itms, pageCount, itemsCount });
     } catch (error) {
@@ -138,7 +129,7 @@ router.get(
 );
 
 /////////////////////Update////////////////////
-router.post('/:Id', authToken, async (req, res) => {
+router.post('/:Id', async (req, res) => {
   try {
     const paramId = parseInt(req.params.Id);
     const results = await Monitors.findMany({
@@ -165,17 +156,6 @@ router.post('/:Id', authToken, async (req, res) => {
       },
     });
 
-    await AddLog(
-      req.user.Id,
-      req.body,
-      `ویرایش مانیتور  @ IP:` +
-        req.socket.remoteAddress.replace(
-          /.*[^0-9](([0-9]{1,3}\.){3}[0-9]{1,3}).*/,
-          '$1'
-        ),
-      monitor,
-      6
-    );
     res.status(200).json(monitor);
   } catch (error) {
     const message = error.message; //?.replace(/(.*\n)*\n*([^\s].*)\n*/, `$2`);
@@ -185,7 +165,7 @@ router.post('/:Id', authToken, async (req, res) => {
 });
 
 /////////////////////Delete/////////////////////
-router.delete('/:Id', authToken, async (req, res) => {
+router.delete('/:Id', async (req, res) => {
   try {
     const paramId = parseInt(req.params.Id);
     const results = await Monitors.findMany({
@@ -204,7 +184,6 @@ router.delete('/:Id', authToken, async (req, res) => {
         Id: paramId,
       },
     });
-    await AddLog(req.user.Id, req.body, 'حذف صفحه نمایش', p, 5);
     res.status(200).send(p);
   } catch (error) {
     const message = error.message; //?.replace(/(.*\n)*\n*([^\s].*)\n*/, `$2`);
