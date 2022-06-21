@@ -1,0 +1,22 @@
+const router = require('express').Router();
+router.use('/apps', require('./LOVs/LOVApps'));
+router.use('/connections', require('./LOVs/LOVConnections'));
+router.use('/cpus', require('./LOVs/LOVCPUs'));
+router.use('/departments', require('./LOVs/LOVDepartments'));
+router.use('/gpus', require('./LOVs/LOVGPUs'));
+router.use('/laptops', require('./LOVs/LOVLaptops'));
+router.use('/memories', require('./LOVs/LOVMemories'));
+router.use('/monitors', require('./LOVs/LOVMonitors'));
+router.use('/motherboards', require('./LOVs/LOVMotherBoards'));
+router.use('/operations', require('./LOVs/LOVOperations'));
+router.use('/oses', require('./LOVs/LOVOSes'));
+router.use('/powers', require('./LOVs/LOVPowers'));
+router.use('/printers', require('./LOVs/LOVPrinters'));
+router.use('/storages', require('./LOVs/LOVStorages'));
+router.use('/users', require('./LOVs/LOVUsers'));
+router.use('/userLevels', require('./LOVs/LOVUserLevels'));
+router.use('/scanners', require('./LOVs/LOVScanners'));
+router.use('/softwares', require('./LOVs/LOVSoftwares'));
+router.use('/telephones', require('./LOVs/LOVTelephones'));
+
+module.exports = router;

@@ -1,0 +1,361 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B616F6E2AAA") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model TblHardwareInfo {
+  HardwareInfoId               BigInt                         @id(map: "PK_TblHardwareInfo") @default(autoincrement())
+  ProvinceId                   Int
+  PersonalCode                 String?                        @db.NVarChar(50)
+  NationalCode                 String?                        @db.NVarChar(50)
+  Name                         String?                        @db.NVarChar(50)
+  Family                       String?                        @db.NVarChar(50)
+  CaseId                       BigInt?
+  PlaceId                      BigInt?
+  AreaId                       BigInt?
+  SystemNameInNetwork          String?                        @db.NVarChar(200)
+  Ip                           String?                        @db.NVarChar(50)
+  CpuId                        BigInt?
+  HddId                        BigInt?
+  MainBoardId                  BigInt?
+  RamId                        BigInt?
+  MonitorId                    BigInt?
+  MonitorCode                  BigInt?
+  PrinterId                    BigInt?
+  PrinterCode                  BigInt?
+  ScannerId                    BigInt?
+  ScannerCode                  BigInt?
+  OsId                         BigInt?
+  Comment                      String?                        @db.NVarChar(Max)
+  DomainUsername               String?                        @db.NVarChar(120)
+  HasInternetConnection        Boolean?
+  IsActive                     Boolean                        @default(true, map: "DF_TblHardwareInfo_IsActive")
+  TblProvince                  TblProvince                    @relation(fields: [ProvinceId], references: [ProvinceId], onUpdate: NoAction, map: "FK_TblHardwareInfo_TblProvince")
+  TblHardwareInfoApplication   TblHardwareInfoApplication[]
+  TblHardwareInfoDevice        TblHardwareInfoDevice[]
+  TblHardwareInfoNetworkStatus TblHardwareInfoNetworkStatus[]
+  TblHardwareInfoSoftware      TblHardwareInfoSoftware[]
+}
+
+model TblHardwareInfoApplication {
+  HardwareInfoId  BigInt
+  ValueItemId     BigInt
+  TblHardwareInfo TblHardwareInfo @relation(fields: [HardwareInfoId], references: [HardwareInfoId], onUpdate: NoAction, map: "FK_TblHardwareInfoApplication_TblHardwareInfo")
+  TblValueItem    TblValueItem    @relation(fields: [ValueItemId], references: [ValueItemId], onUpdate: NoAction, map: "FK_TblHardwareInfoApplication_TblValueItem")
+
+  @@id([HardwareInfoId, ValueItemId], map: "PK_TblHardwareInfoServices")
+}
+
+model TblHardwareInfoDevice {
+  HardwareInfoId  BigInt
+  ValueItemId     BigInt
+  TblHardwareInfo TblHardwareInfo @relation(fields: [HardwareInfoId], references: [HardwareInfoId], onUpdate: NoAction, map: "FK_TblHardwareInfoDevice_TblHardwareInfo")
+  TblValueItem    TblValueItem    @relation(fields: [ValueItemId], references: [ValueItemId], onUpdate: NoAction, map: "FK_TblHardwareInfoDevice_TblValueItem")
+
+  @@id([HardwareInfoId, ValueItemId], map: "PK_TblHardwareInfoDevice")
+}
+
+model TblHardwareInfoNetworkStatus {
+  HardwareInfoId  BigInt
+  ValueItemId     BigInt
+  TblHardwareInfo TblHardwareInfo @relation(fields: [HardwareInfoId], references: [HardwareInfoId], onUpdate: NoAction, map: "FK_TblHardwareInfoNetworkStatus_TblHardwareInfo")
+  TblValueItem    TblValueItem    @relation(fields: [ValueItemId], references: [ValueItemId], onUpdate: NoAction, map: "FK_TblHardwareInfoNetworkStatus_TblValueItem")
+
+  @@id([HardwareInfoId, ValueItemId], map: "PK_TblHardwareInfoNetworkStatus")
+}
+
+model TblHardwareInfoSoftware {
+  HardwareInfoId  BigInt
+  ValueItemId     BigInt
+  TblHardwareInfo TblHardwareInfo @relation(fields: [HardwareInfoId], references: [HardwareInfoId], onUpdate: NoAction, map: "FK_TblHardwareInfoSoftware_TblHardwareInfo")
+  TblValueItem    TblValueItem    @relation(fields: [ValueItemId], references: [ValueItemId], onUpdate: NoAction, map: "FK_TblHardwareInfoSoftware_TblValueItem")
+
+  @@id([HardwareInfoId, ValueItemId], map: "PK_TblHardwareInfoSoftware")
+}
+
+model TblKeyItem {
+  KeyItemId    BigInt         @id(map: "PK_TblKeyItem") @default(autoincrement())
+  Name         String         @db.NVarChar(50)
+  TblValueItem TblValueItem[]
+}
+
+model TblLogInfo {
+  LogInfoId      BigInt   @id(map: "PK_TblLog") @default(autoincrement())
+  LogType        Int
+  LogPriority    Int      @default(0, map: "DF_TblLogInfo_LogPriority")
+  LogDateTime    DateTime @db.DateTime
+  Ip             String   @db.NVarChar(50)
+  LocationId     BigInt?
+  FullName       String?  @db.NVarChar(150)
+  Username       String?  @db.NVarChar(50)
+  Module         String?  @db.NVarChar(50)
+  Action         String?  @db.NVarChar(50)
+  AdditionalData String?  @db.NVarChar(Max)
+  Agent          String?  @db.NVarChar(4000)
+  ProvinceId     Int?
+  CountyId       Int?
+}
+
+model TblProvince {
+  ProvinceId      Int               @id(map: "PK_TblProvince") @default(autoincrement())
+  Name            String            @db.NVarChar(50)
+  TblHardwareInfo TblHardwareInfo[]
+}
+
+model TblSession {
+  SessionId      BigInt   @id(map: "PK_TblToken")
+  Data           String   @db.NVarChar(Max)
+  ExpireDateTime DateTime @db.DateTime
+}
+
+model TblSms {
+  SmsId    BigInt  @id(map: "PK_TblSms") @default(autoincrement())
+  UserId   Int
+  Sender   String  @db.NVarChar(50)
+  Receiver String  @db.NVarChar(50)
+  Message  String  @db.NVarChar(500)
+  Status   Boolean
+  Priority Int     @db.TinyInt
+}
+
+// Done
+model TblUser {
+  UserId                 Int      @id(map: "PK_TblUser") @default(autoincrement())
+  Name                   String   @db.NVarChar(100)
+  Family                 String   @db.NVarChar(100)
+  PhoneNumber            String   @db.NVarChar(100)
+  Username               String   @db.NVarChar(100)
+  Password               String   @db.NVarChar(100)
+  CreateAt               DateTime @db.DateTime
+  UnsuccessfulLoginCount Int?     @default(0, map: "DF_TblUser_UnsuccessfulloginCount") @db.TinyInt
+  Temp                   String?  @db.NVarChar(50)
+  UserStatusId           Int      @db.TinyInt
+  UserLevelId            Int      @default(0, map: "DF_TblUser_UserLevel") @db.TinyInt
+  ProvinceId             Int?
+}
+
+model TblUserLevel {
+  UserLevelId Int     @id(map: "PK_TblUserLevel") @db.TinyInt
+  Title       String  @db.NVarChar(50)
+  Username    String? @db.NVarChar(50)
+}
+
+model TblValueItem {
+  ValueItemId                  BigInt                         @id(map: "PK_TblValueItem") @default(autoincrement())
+  ProvinceId                   Int?
+  KeyItemId                    BigInt
+  Name                         String                         @db.NVarChar(50)
+  TblKeyItem                   TblKeyItem                     @relation(fields: [KeyItemId], references: [KeyItemId], onUpdate: NoAction, map: "FK_TblValueItem_TblKeyItem")
+  TblHardwareInfoApplication   TblHardwareInfoApplication[]
+  TblHardwareInfoDevice        TblHardwareInfoDevice[]
+  TblHardwareInfoNetworkStatus TblHardwareInfoNetworkStatus[]
+  TblHardwareInfoSoftware      TblHardwareInfoSoftware[]
+}
+
+model User {
+  id           BigInt      @id
+  personalid   BigInt?     @unique
+  provinceid   Int
+  cityid       Int?
+  departmentid Int?
+  username     String      @unique @db.VarChar(100)
+  password     String      @db.VarChar(100)
+  name         String      @db.NVarChar(100)
+  family       String      @db.NVarChar(100)
+  phoneNumber  String      @db.NVarChar(100)
+  userLevelId  Int         @default(0) @db.TinyInt
+  // unsuccessfulLoginCount Int?        @default(0) @db.TinyInt
+  createAt     DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  computers    Computer[]
+  Monitors     Monitor[]
+  Printers     Printer[]
+  Scanners     Scanner[]
+  Telephones   Telephone[]
+  Laptops      Laptop[]
+  Networks     Network[]
+}
+
+model UserLevel {
+  id        Int      @id @db.TinyInt
+  // userid    String?  @unique @db.NVarChar(50) todo -> username
+  title     String   @db.NVarChar(50)
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NetworkConnection {
+  id   BigInt @id @default(autoincrement())
+  type String @db.VarChar(100)
+
+  createAt  DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Networks  Network[]
+}
+
+model Network {
+  id            BigInt @id @default(autoincrement())
+  username      String @db.VarChar(100)
+  connection_id BigInt
+
+  networkname String?           @db.VarChar(256)
+  ip          String?           @db.VarChar(256)
+  user        User              @relation(fields: [username], references: [username])
+  connection  NetworkConnection @relation(fields: [connection_id], references: [id])
+  createAt    DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model Computer {
+  id            BigInt        @id
+  username      String        @db.VarChar(100)
+  user          User          @relation(fields: [username], references: [username])
+  StorageUnits  StorageUnit[]
+  CPUs          CPU[]
+  GPUs          GPU[]
+  RAMs          RAM[]
+  PowerSupplies PowerSupply[]
+  Cases         Case[]
+  MotherBoards  MotherBoard[]
+  createAt      DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// ////////////////Computer Children////////////////////
+model PowerSupply {
+  id          BigInt   @id @default(autoincrement())
+  model       String   @db.NVarChar(191)
+  serialNum   String?  @db.NVarChar(256)
+  specs       String?  @db.NVarChar(256)
+  computer_id BigInt
+  computer    Computer @relation(fields: [computer_id], references: [id])
+  createAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Case {
+  id          BigInt   @id
+  specs       String   @db.NVarChar(256)
+  computer_id BigInt
+  computer    Computer @relation(fields: [computer_id], references: [id])
+  createAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MotherBoard {
+  id          BigInt   @id @default(autoincrement())
+  model       String   @db.NVarChar(191)
+  specs       String?  @db.NVarChar(256)
+  computer_id BigInt
+  computer    Computer @relation(fields: [computer_id], references: [id])
+}
+
+model CPU {
+  id          BigInt   @id @default(autoincrement())
+  model       String   @db.NVarChar(191)
+  clock       String?  @db.NVarChar(100)
+  cache       String?  @db.NVarChar(100)
+  specs       String?  @db.NVarChar(256)
+  computer_id BigInt
+  computer    Computer @relation(fields: [computer_id], references: [id])
+}
+
+model GPU {
+  id          BigInt   @id @default(autoincrement())
+  specs       String   @db.NVarChar(256)
+  computer_id BigInt
+  computer    Computer @relation(fields: [computer_id], references: [id])
+}
+
+model RAM {
+  id          BigInt   @id @default(autoincrement())
+  capacity    BigInt
+  type        String?  @db.NVarChar(100)
+  config      String?  @db.NVarChar(191)
+  computer_id BigInt
+  computer    Computer @relation(fields: [computer_id], references: [id])
+}
+
+model StorageUnit {
+  id          BigInt   @id @default(autoincrement())
+  capacity    BigInt
+  count       Int      @default(1)
+  model       String   @db.NVarChar(191)
+  type        String   @db.NVarChar(100)
+  computer_id BigInt
+  computer    Computer @relation(fields: [computer_id], references: [id])
+  createAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// //////////////////////////////////////////////////////
+
+model Monitor {
+  id       BigInt @id
+  username String @db.VarChar(100)
+
+
+  model     String   @db.NVarChar(191)
+  specs     String?  @db.NVarChar(256)
+  user      User     @relation(fields: [username], references: [username])
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Printer {
+  id       BigInt @id
+  username String @db.VarChar(100)
+
+  model     String   @db.NVarChar(191)
+  name      String   @db.VarChar(256)
+  ip        String?  @db.VarChar(256)
+  user      User     @relation(fields: [username], references: [username])
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Scanner {
+  id       BigInt @id
+  username String @db.VarChar(100)
+
+  model     String   @db.NVarChar(191)
+  user      User     @relation(fields: [username], references: [username])
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Telephone {
+  id       BigInt @id
+  username String @db.VarChar(100)
+
+  model     String   @db.NVarChar(191)
+  specs     String?  @db.NVarChar(256)
+  user      User     @relation(fields: [username], references: [username])
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Laptop {
+  id       BigInt @id
+  username String @db.VarChar(100)
+
+  model     String   @db.NVarChar(191)
+  specs     String?  @db.NVarChar(256)
+  user      User     @relation(fields: [username], references: [username])
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,659 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B616F6E2AAA") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model TblHardwareInfo {
+  HardwareInfoId               BigInt                         @id(map: "PK_TblHardwareInfo") @default(autoincrement())
+  ProvinceId                   Int
+  PersonalCode                 String?                        @db.NVarChar(50)
+  NationalCode                 String?                        @db.NVarChar(50)
+  Name                         String?                        @db.NVarChar(50)
+  Family                       String?                        @db.NVarChar(50)
+  CaseId                       BigInt?
+  PlaceId                      BigInt?
+  AreaId                       BigInt?
+  SystemNameInNetwork          String?                        @db.NVarChar(200)
+  Ip                           String?                        @db.NVarChar(50)
+  CpuId                        BigInt?
+  HddId                        BigInt?
+  MainBoardId                  BigInt?
+  RamId                        BigInt?
+  MonitorId                    BigInt?
+  MonitorCode                  BigInt?
+  PrinterId                    BigInt?
+  PrinterCode                  BigInt?
+  ScannerId                    BigInt?
+  ScannerCode                  BigInt?
+  OsId                         BigInt?
+  Comment                      String?                        @db.NVarChar(Max)
+  DomainUsername               String?                        @db.NVarChar(120)
+  HasInternetConnection        Boolean?
+  IsActive                     Boolean                        @default(true, map: "DF_TblHardwareInfo_IsActive")
+  NewProvinceId                Int?
+  TblProvince                  TblProvince                    @relation(fields: [ProvinceId], references: [ProvinceId], onUpdate: NoAction, map: "FK_TblHardwareInfo_TblProvince")
+  TblHardwareInfoApplication   TblHardwareInfoApplication[]
+  TblHardwareInfoDevice        TblHardwareInfoDevice[]
+  TblHardwareInfoNetworkStatus TblHardwareInfoNetworkStatus[]
+  TblHardwareInfoSoftware      TblHardwareInfoSoftware[]
+}
+
+model TblHardwareInfoApplication {
+  HardwareInfoId  BigInt
+  ValueItemId     BigInt
+  TblHardwareInfo TblHardwareInfo @relation(fields: [HardwareInfoId], references: [HardwareInfoId], onUpdate: NoAction, map: "FK_TblHardwareInfoApplication_TblHardwareInfo")
+  TblValueItem    TblValueItem    @relation(fields: [ValueItemId], references: [ValueItemId], onUpdate: NoAction, map: "FK_TblHardwareInfoApplication_TblValueItem")
+
+  @@id([HardwareInfoId, ValueItemId], map: "PK_TblHardwareInfoServices")
+}
+
+model TblHardwareInfoDevice {
+  HardwareInfoId  BigInt
+  ValueItemId     BigInt
+  TblHardwareInfo TblHardwareInfo @relation(fields: [HardwareInfoId], references: [HardwareInfoId], onUpdate: NoAction, map: "FK_TblHardwareInfoDevice_TblHardwareInfo")
+  TblValueItem    TblValueItem    @relation(fields: [ValueItemId], references: [ValueItemId], onUpdate: NoAction, map: "FK_TblHardwareInfoDevice_TblValueItem")
+
+  @@id([HardwareInfoId, ValueItemId], map: "PK_TblHardwareInfoDevice")
+}
+
+model TblHardwareInfoNetworkStatus {
+  HardwareInfoId  BigInt
+  ValueItemId     BigInt
+  TblHardwareInfo TblHardwareInfo @relation(fields: [HardwareInfoId], references: [HardwareInfoId], onUpdate: NoAction, map: "FK_TblHardwareInfoNetworkStatus_TblHardwareInfo")
+  TblValueItem    TblValueItem    @relation(fields: [ValueItemId], references: [ValueItemId], onUpdate: NoAction, map: "FK_TblHardwareInfoNetworkStatus_TblValueItem")
+
+  @@id([HardwareInfoId, ValueItemId], map: "PK_TblHardwareInfoNetworkStatus")
+}
+
+model TblHardwareInfoSoftware {
+  HardwareInfoId  BigInt
+  ValueItemId     BigInt
+  TblHardwareInfo TblHardwareInfo @relation(fields: [HardwareInfoId], references: [HardwareInfoId], onUpdate: NoAction, map: "FK_TblHardwareInfoSoftware_TblHardwareInfo")
+  TblValueItem    TblValueItem    @relation(fields: [ValueItemId], references: [ValueItemId], onUpdate: NoAction, map: "FK_TblHardwareInfoSoftware_TblValueItem")
+
+  @@id([HardwareInfoId, ValueItemId], map: "PK_TblHardwareInfoSoftware")
+}
+
+model TblKeyItem {
+  KeyItemId    BigInt         @id(map: "PK_TblKeyItem") @default(autoincrement())
+  Name         String         @db.NVarChar(50)
+  TblValueItem TblValueItem[]
+}
+
+model TblLogInfo {
+  LogInfoId      BigInt   @id(map: "PK_TblLog") @default(autoincrement())
+  LogType        Int
+  LogPriority    Int      @default(0, map: "DF_TblLogInfo_LogPriority")
+  LogDateTime    DateTime @db.DateTime
+  Ip             String   @db.NVarChar(50)
+  LocationId     BigInt?
+  FullName       String?  @db.NVarChar(150)
+  Username       String?  @db.NVarChar(50)
+  Module         String?  @db.NVarChar(50)
+  Action         String?  @db.NVarChar(50)
+  AdditionalData String?  @db.NVarChar(Max)
+  Agent          String?  @db.NVarChar(4000)
+  ProvinceId     Int?
+  CountyId       Int?
+}
+
+model TblProvince {
+  ProvinceId      Int               @id(map: "PK_TblProvince") @default(autoincrement())
+  Name            String            @db.NVarChar(50)
+  TblHardwareInfo TblHardwareInfo[]
+}
+
+model TblSession {
+  SessionId      BigInt   @id(map: "PK_TblToken")
+  Data           String   @db.NVarChar(Max)
+  ExpireDateTime DateTime @db.DateTime
+}
+
+model TblSms {
+  SmsId    BigInt  @id(map: "PK_TblSms") @default(autoincrement())
+  UserId   Int
+  Sender   String  @db.NVarChar(50)
+  Receiver String  @db.NVarChar(50)
+  Message  String  @db.NVarChar(500)
+  Status   Boolean
+  Priority Int     @db.TinyInt
+}
+
+model TblUser {
+  UserId                 Int      @id(map: "PK_TblUser") @default(autoincrement())
+  Name                   String   @db.NVarChar(100)
+  Family                 String   @db.NVarChar(100)
+  PhoneNumber            String   @db.NVarChar(100)
+  Username               String   @db.NVarChar(100)
+  Password               String   @db.NVarChar(100)
+  CreateAt               DateTime @db.DateTime
+  UnsuccessfulLoginCount Int?     @default(0, map: "DF_TblUser_UnsuccessfulloginCount") @db.TinyInt
+  Temp                   String?  @db.NVarChar(50)
+  UserStatusId           Int      @db.TinyInt
+  UserLevelId            Int      @default(0, map: "DF_TblUser_UserLevel") @db.TinyInt
+  ProvinceId             Int?
+}
+
+model TblUserLevel {
+  UserLevelId Int     @id(map: "PK_TblUserLevel") @db.TinyInt
+  Title       String  @db.NVarChar(50)
+  Username    String? @db.NVarChar(50)
+}
+
+model TblValueItem {
+  ValueItemId                  BigInt                         @id(map: "PK_TblValueItem") @default(autoincrement())
+  ProvinceId                   Int?
+  KeyItemId                    BigInt
+  Name                         String                         @db.NVarChar(50)
+  TblKeyItem                   TblKeyItem                     @relation(fields: [KeyItemId], references: [KeyItemId], onUpdate: NoAction, map: "FK_TblValueItem_TblKeyItem")
+  TblHardwareInfoApplication   TblHardwareInfoApplication[]
+  TblHardwareInfoDevice        TblHardwareInfoDevice[]
+  TblHardwareInfoNetworkStatus TblHardwareInfoNetworkStatus[]
+  TblHardwareInfoSoftware      TblHardwareInfoSoftware[]
+}
+
+model LOVDepartments {
+  Id             Int              @id(map: "PK_Departments") @default(autoincrement())
+  Department     String           @db.NVarChar(256)
+  createAt       DateTime         @default(now(), map: "Departments_createAt_df")
+  updatedAt      DateTime?
+  Computers      Computers[]
+  Computers_copy Computers_copy[]
+  DummyUsers     DummyUsers[]
+  Monitors       Monitors[]
+  Printers       Printers[]
+  Scanners       Scanners[]
+  Telephones     Telephones[]
+  Users          Users[]
+}
+
+model Connections {
+  Id              Int             @id(map: "PK_Network") @default(autoincrement())
+  LOVConnectionId Int?            @default(3, map: "DF__Connectio__LOVCo__70E8B0D0")
+  NetworkName     String?         @db.VarChar(256)
+  Ip              String?         @db.VarChar(256)
+  ComputerId      Int
+  createAt        DateTime        @default(now(), map: "Network_createAt_df")
+  updatedAt       DateTime?
+  Computers       Computers       @relation(fields: [ComputerId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Connections_ComputerId")
+  LOVConnections  LOVConnections? @relation(fields: [LOVConnectionId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Connections_LOVConnectionId")
+}
+
+model LOVOperations {
+  Id        Int    @id(map: "PK_Amaliaats") @default(autoincrement())
+  Operation String @db.NVarChar(50)
+  Logs      Logs[]
+}
+
+model Memories {
+  Id          Int          @id(map: "PK_Memories_Id") @default(autoincrement())
+  LOVMemoryId Int?
+  Count       Int          @default(1, map: "DF__Memories__Count__12E8C319") @db.TinyInt
+  ComputerId  Int
+  Computers   Computers    @relation(fields: [ComputerId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Memories_ComputerId")
+  LOVMemories LOVMemories? @relation(fields: [LOVMemoryId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Memories_LOVMemoryId")
+}
+
+model Monitors {
+  Id               Int             @id(map: "PK_Monitors_Id") @default(autoincrement())
+  UserId           String?         @db.VarChar(100)
+  LOVMonitorId     Int?
+  ProvinceId       Int?
+  LOVDepartmentsId Int?
+  PropertyCode     String?         @db.VarChar(50)
+  LOVDepartments   LOVDepartments? @relation(fields: [LOVDepartmentsId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Monitors_LOVDepartmentsId")
+  LOVMonitors      LOVMonitors?    @relation(fields: [LOVMonitorId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Monitors_LOVMonitorId")
+  Provinces        Provinces?      @relation(fields: [ProvinceId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Monitors_ProvinceId")
+  Users            Users?          @relation(fields: [UserId], references: [Id], onUpdate: NoAction, map: "FK_Monitors_UserId")
+}
+
+model Printers {
+  Id               Int             @id(map: "PK_Printer_Id") @default(autoincrement())
+  UserId           String?         @db.VarChar(100)
+  LOVPrinterId     Int?
+  ProvinceId       Int?
+  LOVDepartmentsId Int?
+  PropertyCode     String?         @db.VarChar(50)
+  LOVDepartments   LOVDepartments? @relation(fields: [LOVDepartmentsId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Printers_LOVDepartmentsId")
+  LOVPrinters      LOVPrinters?    @relation(fields: [LOVPrinterId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Printers_LOVPrinterId")
+  Provinces        Provinces?      @relation(fields: [ProvinceId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Printers_ProvinceId")
+  Users            Users?          @relation(fields: [UserId], references: [Id], onUpdate: NoAction, map: "FK_Printers_UserId")
+}
+
+model Scanners {
+  Id               Int             @id(map: "PK_Scanners_Id") @default(autoincrement())
+  UserId           String?         @db.VarChar(100)
+  LOVScannerId     Int?            @default(10096, map: "DF__Scanners__LOVSca__72D0F942")
+  ProvinceId       Int?
+  LOVDepartmentsId Int?
+  PropertyCode     String?         @db.VarChar(50)
+  LOVDepartments   LOVDepartments? @relation(fields: [LOVDepartmentsId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Scanners_LOVDepartmentsId")
+  LOVScanners      LOVScanners?    @relation(fields: [LOVScannerId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Scanners_LOVScanner")
+  Provinces        Provinces?      @relation(fields: [ProvinceId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Scanners_ProvinceId")
+  Users            Users?          @relation(fields: [UserId], references: [Id], onUpdate: NoAction, map: "FK_Scanners_UserId")
+}
+
+model Storages {
+  Id           Int          @id(map: "PK_Storages_Id") @default(autoincrement())
+  LOVStorageId Int?
+  ComputerId   Int
+  Count        Int          @default(1, map: "DF__Storages__Count__675F4696") @db.TinyInt
+  Computers    Computers    @relation(fields: [ComputerId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Storages_ComputerId")
+  LOVStorages  LOVStorages? @relation(fields: [LOVStorageId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Storages_LOVStrorageId")
+}
+
+model Telephones {
+  Id               Int             @id(map: "PK_Telephones_Id") @default(autoincrement())
+  UserId           String?         @db.VarChar(100)
+  LOVTelephoneId   Int?
+  ProvinceId       Int?
+  LOVDepartmentsId Int?
+  PropertyCode     String?         @db.VarChar(50)
+  LOVDepartments   LOVDepartments? @relation(fields: [LOVDepartmentsId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Telephones_DepartmentId")
+  LOVTelephones    LOVTelephones?  @relation(fields: [LOVTelephoneId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Telephones_LOVTelephone")
+  Provinces        Provinces?      @relation(fields: [ProvinceId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Telephones_ProvinceId")
+  Users            Users?          @relation(fields: [UserId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Telephones_UserId")
+}
+
+model Computers {
+  Id                Int              @id(map: "PK_Id") @default(autoincrement())
+  PropertyCode      String?          @db.VarChar(50)
+  UserId            String?          @db.VarChar(100)
+  ProvinceId        Int?
+  LOVDepartmentsId  Int?
+  LOVMotherBoardsId Int?
+  LOVCPUId          Int?
+  LOVGPUId          Int?
+  LOVPowerId        Int?             @default(1, map: "DF__Computers__LOVPo__1DBB5747")
+  LOVLaptopId       Int?
+  LOVCPUs           LOVCPUs?         @relation(fields: [LOVCPUId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_LOVCPUId")
+  LOVDepartments    LOVDepartments?  @relation(fields: [LOVDepartmentsId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computer_LOVDepartmentsId")
+  LOVGPUs           LOVGPUs?         @relation(fields: [LOVGPUId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computer_LOVGPUId")
+  LOVLaptops        LOVLaptops?      @relation(fields: [LOVLaptopId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_LOVLaptopId")
+  LOVMotherBoards   LOVMotherBoards? @relation(fields: [LOVMotherBoardsId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_LOVMotherBoardId")
+  LOVPowers         LOVPowers?       @relation(fields: [LOVPowerId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computer_LOVPowerId")
+  Provinces         Provinces?       @relation(fields: [ProvinceId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computer_ProvinceId")
+  Users             Users?           @relation(fields: [UserId], references: [Id], onUpdate: NoAction, map: "FK_Computer_UserId")
+  Apps              Apps[]
+  Connections       Connections[]
+  Memories          Memories[]
+  Memories_copy     Memories_copy[]
+  OSes              OSes[]
+  Softwares         Softwares[]
+  Storages          Storages[]
+}
+
+model LOVConnections {
+  Id          Int           @id(map: "NetworkConnection_pkey") @default(autoincrement())
+  Type        String        @db.VarChar(100)
+  createAt    DateTime      @default(now(), map: "NetworkConnection_createAt_df")
+  updatedAt   DateTime?
+  Connections Connections[]
+}
+
+model LOVCPUs {
+  Id             Int              @id(map: "PK_CPU") @default(autoincrement())
+  Model          String           @db.NVarChar(191)
+  Clock          String?          @db.NVarChar(100)
+  Cache          String?          @db.NVarChar(100)
+  Specs          String?          @db.NVarChar(256)
+  createAt       DateTime         @default(now(), map: "CPU_createAt_df")
+  updatedAt      DateTime?
+  Computers      Computers[]
+  Computers_copy Computers_copy[]
+}
+
+model LOVGPUs {
+  Id             Int              @id(map: "GPU_pkey") @default(autoincrement())
+  Specs          String           @db.NVarChar(256)
+  createAt       DateTime         @default(now(), map: "GPU_createAt_df")
+  updatedAt      DateTime?
+  Computers      Computers[]
+  Computers_copy Computers_copy[]
+}
+
+model LOVLaptops {
+  Id             Int              @id(map: "PK_LOVLaptops_Id") @default(autoincrement())
+  Model          String           @db.NVarChar(100)
+  Specs          String?          @db.NVarChar(100)
+  Computers      Computers[]
+  Computers_copy Computers_copy[]
+}
+
+model LOVMemories {
+  Id            Int             @id(map: "PK_Memory") @default(autoincrement())
+  Capacity      String?         @db.NVarChar(256)
+  Type          String?         @db.NVarChar(100)
+  createAt      DateTime        @default(now(), map: "RAM_createAt_df")
+  updatedAt     DateTime?
+  Memories      Memories[]
+  Memories_copy Memories_copy[]
+}
+
+model LOVMonitors {
+  Id        Int        @id(map: "Monitor_pkey") @default(autoincrement())
+  Model     String     @db.NVarChar(191)
+  Specs     String?    @db.NVarChar(256)
+  createAt  DateTime   @default(now(), map: "Monitor_createAt_df")
+  updatedAt DateTime?
+  Monitors  Monitors[]
+}
+
+model LOVMotherBoards {
+  Id             Int              @id(map: "PK_MotherBoard") @default(autoincrement())
+  Model          String           @db.NVarChar(191)
+  Specs          String?          @db.NVarChar(256)
+  createAt       DateTime         @default(now(), map: "MotherBoard_createAt_df")
+  updatedAt      DateTime?
+  Computers      Computers[]
+  Computers_copy Computers_copy[]
+}
+
+model LOVOSes {
+  Id        Int       @id(map: "PK_Os") @default(autoincrement())
+  Specs     String    @db.NVarChar(256)
+  createAt  DateTime  @default(now(), map: "Os_createAt_df")
+  updatedAt DateTime?
+  OSes      OSes[]
+}
+
+model LOVPowers {
+  Id             Int              @id(map: "PowerSupply_pkey") @default(autoincrement())
+  Model          String           @db.NVarChar(191)
+  SerialNum      String?          @db.NVarChar(256)
+  Specs          String?          @db.NVarChar(256)
+  createAt       DateTime         @default(now(), map: "PowerSupply_createAt_df")
+  updatedAt      DateTime?
+  Computers      Computers[]
+  Computers_copy Computers_copy[]
+}
+
+model LOVPrinters {
+  Id        Int        @id(map: "Printer_pkey") @default(autoincrement())
+  Model     String     @db.NVarChar(191)
+  Name      String     @db.VarChar(256)
+  createAt  DateTime   @default(now(), map: "Printer_createAt_df")
+  updatedAt DateTime?
+  Printers  Printers[]
+}
+
+model LOVScanners {
+  Id        Int        @id(map: "Scanner_pkey") @default(autoincrement())
+  Model     String     @db.NVarChar(191)
+  createAt  DateTime   @default(now(), map: "Scanner_createAt_df")
+  updatedAt DateTime?
+  Scanners  Scanners[]
+}
+
+model LOVStorages {
+  Id        Int        @id(map: "PK_HDD") @default(autoincrement())
+  Type      String?    @default("HDD", map: "DF__LOVStorage__Type__3D9E16F4") @db.VarChar(50)
+  Specs     String     @db.NVarChar(256)
+  createAt  DateTime   @default(now(), map: "HDD_createAt_df")
+  updatedAt DateTime?
+  Storages  Storages[]
+}
+
+model LOVTelephones {
+  Id         Int          @id(map: "Telephone_pkey") @default(autoincrement())
+  Model      String       @db.NVarChar(191)
+  Specs      String?      @db.NVarChar(256)
+  createAt   DateTime     @default(now(), map: "Telephone_createAt_df")
+  updatedAt  DateTime?
+  Telephones Telephones[]
+}
+
+model LOVUserLevels {
+  Id                  Int                   @id(map: "UserLevel_pkey") @default(autoincrement())
+  Title               String                @db.NVarChar(50)
+  DummyUsers          DummyUsers[]
+  RegisterUsersAccess RegisterUsersAccess[]
+  Users               Users[]
+}
+
+model OSes {
+  Id         Int        @id(map: "PK_Oses_Id") @default(autoincrement())
+  LOVOsId    Int?
+  ComputerId Int?
+  Computers  Computers? @relation(fields: [ComputerId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_OSes_ComputerId")
+  LOVOSes    LOVOSes?   @relation(fields: [LOVOsId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_OSes_LOVOsId")
+}
+
+model Provinces {
+  Id             Int              @id(map: "PK_Province_Id") @default(autoincrement())
+  Province       String?          @db.NVarChar(50)
+  Computers      Computers[]
+  Computers_copy Computers_copy[]
+  DummyUsers     DummyUsers[]
+  Monitors       Monitors[]
+  Printers       Printers[]
+  Scanners       Scanners[]
+  Telephones     Telephones[]
+  Users          Users[]
+}
+
+model Users {
+  Id                  String               @id(map: "User_pkey") @db.VarChar(100)
+  ProvinceId          Int
+  LOVDepartmentId     Int?
+  UserLevelId         Int?                 @default(4, map: "User_userLevelId_df")
+  Password            String?              @db.VarChar(100)
+  Name                String               @db.NVarChar(100)
+  Family              String               @db.NVarChar(100)
+  PhoneNumber         String?              @db.NVarChar(100)
+  createAt            DateTime             @default(now(), map: "User_createAt_df")
+  updatedAt           DateTime?
+  LOVDepartments      LOVDepartments?      @relation(fields: [LOVDepartmentId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_User_LOVDepartmentId")
+  Provinces           Provinces            @relation(fields: [ProvinceId], references: [Id], onUpdate: NoAction, map: "FK_User_ProvinceId")
+  LOVUserLevels       LOVUserLevels?       @relation(fields: [UserLevelId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_User_UserLevelId")
+  Computers           Computers[]
+  Computers_copy      Computers_copy[]
+  Logs                Logs[]
+  Monitors            Monitors[]
+  Printers            Printers[]
+  RegisterUsersAccess RegisterUsersAccess?
+  Scanners            Scanners[]
+  Telephones          Telephones[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model AllUsers {
+  id     String  @id(map: "PK_AllUsers_id") @db.NVarChar(100)
+  pcode  String? @db.NVarChar(100)
+  name   String? @db.NVarChar(100)
+  family String? @db.NVarChar(100)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model Imani {
+  name   String? @db.VarChar(50)
+  family String? @db.VarChar(50)
+  phone  String? @db.VarChar(50)
+  uname  String? @db.VarChar(50)
+  pcode  String? @db.VarChar(50)
+  prov   String? @db.VarChar(50)
+  title  String? @db.VarChar(50)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model Personel2ID {
+  OldId String? @db.NVarChar(50)
+  NewId String  @db.VarChar(100)
+
+  @@ignore
+}
+
+model Apps {
+  Id         Int        @id(map: "PK_Apps_Id") @default(autoincrement())
+  LOVAppId   Int?
+  ComputerId Int?
+  Computers  Computers? @relation(fields: [ComputerId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Apps_ComputerId")
+  LOVApps    LOVApps?   @relation(fields: [LOVAppId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Apps_LOVAppId")
+}
+
+model LOVApps {
+  Id        Int       @id(map: "PK_LOVApps_Id") @default(autoincrement())
+  Name      String    @db.NVarChar(50)
+  createAt  DateTime  @default(now(), map: "DC_LOVApps_createAt")
+  updatedAt DateTime?
+  Apps      Apps[]
+}
+
+model LOVSoftwares {
+  Id        Int         @id(map: "PK_LOVSoftwares_Id") @default(autoincrement())
+  Specs     String      @db.NVarChar(100)
+  createAt  DateTime    @default(now(), map: "DC_LOVSoftwares_createAt")
+  updatedAt DateTime?
+  Softwares Softwares[]
+}
+
+model Softwares {
+  Id            Int           @id(map: "PK_Softwares_Id") @default(autoincrement())
+  LOVSoftwareId Int?
+  ComputerId    Int?
+  Computers     Computers?    @relation(fields: [ComputerId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Softwares_ComputerId")
+  LOVSoftwares  LOVSoftwares? @relation(fields: [LOVSoftwareId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Softwares_LOVSoftwareId")
+}
+
+model TblHardwareInfo_To_Computers {
+  HardwareInfoId        BigInt   @id(map: "PK_TblHardwareInfo_To_Computers_HardwareInfoId") @default(autoincrement())
+  ProvinceId            Int
+  PersonalCode          String?  @db.NVarChar(50)
+  NationalCode          String?  @db.NVarChar(50)
+  Name                  String?  @db.NVarChar(50)
+  Family                String?  @db.NVarChar(50)
+  CaseId                BigInt?
+  PlaceId               BigInt?
+  AreaId                BigInt?
+  SystemNameInNetwork   String?  @db.NVarChar(200)
+  Ip                    String?  @db.NVarChar(50)
+  CpuId                 BigInt?
+  HddId                 BigInt?
+  MainBoardId           BigInt?
+  RamId                 BigInt?
+  MonitorId             BigInt?
+  MonitorCode           BigInt?
+  PrinterId             BigInt?
+  PrinterCode           BigInt?
+  ScannerId             BigInt?
+  ScannerCode           BigInt?
+  OsId                  BigInt?
+  Comment               String?  @db.NVarChar(Max)
+  DomainUsername        String?  @db.NVarChar(120)
+  HasInternetConnection Boolean?
+  IsActive              Boolean  @default(true, map: "DC_TblHardwareInfo_To_Computers_IsActive")
+}
+
+model TblHardwareInfo_TO_uniqueUsers {
+  HardwareInfoId        BigInt   @id(map: "PK_TblHardwareInfo_copy_HardwareInfoId") @default(autoincrement())
+  ProvinceId            Int
+  PersonalCode          String?  @db.NVarChar(50)
+  NationalCode          String?  @db.NVarChar(50)
+  Name                  String?  @db.NVarChar(50)
+  Family                String?  @db.NVarChar(50)
+  CaseId                BigInt?
+  PlaceId               BigInt?
+  AreaId                BigInt?
+  SystemNameInNetwork   String?  @db.NVarChar(200)
+  Ip                    String?  @db.NVarChar(50)
+  CpuId                 BigInt?
+  HddId                 BigInt?
+  MainBoardId           BigInt?
+  RamId                 BigInt?
+  MonitorId             BigInt?
+  MonitorCode           BigInt?
+  PrinterId             BigInt?
+  PrinterCode           BigInt?
+  ScannerId             BigInt?
+  ScannerCode           BigInt?
+  OsId                  BigInt?
+  Comment               String?  @db.NVarChar(Max)
+  DomainUsername        String?  @db.NVarChar(120)
+  HasInternetConnection Boolean?
+  IsActive              Boolean  @default(true, map: "DC_TblHardwareInfo_copy_IsActive")
+}
+
+model DummyUsers {
+  Id              String          @id(map: "PK_DummyUsers_Id") @db.VarChar(100)
+  ProvinceId      Int
+  LOVDepartmentId Int?
+  UserLevelId     Int?            @default(4, map: "DC_DummyUsers_UserLevelId")
+  Password        String?         @db.VarChar(100)
+  Name            String          @db.NVarChar(100)
+  Family          String          @db.NVarChar(100)
+  PhoneNumber     String?         @db.NVarChar(100)
+  createAt        DateTime        @default(now(), map: "DC_DummyUsers_createAt")
+  updatedAt       DateTime?
+  LOVDepartments  LOVDepartments? @relation(fields: [LOVDepartmentId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_DummyUsers_LOVDepartmentId")
+  Provinces       Provinces       @relation(fields: [ProvinceId], references: [Id], onUpdate: NoAction, map: "FK_DummyUsers_ProvinceId")
+  LOVUserLevels   LOVUserLevels?  @relation(fields: [UserLevelId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_DummyUsers_UserLevelId")
+}
+
+model RegisterUsersAccess {
+  Id            String        @id(map: "PK_RegisterUsersAccess_Id") @db.VarChar(100)
+  Password      String        @db.VarChar(100)
+  UserLevelId   Int           @default(3, map: "DF__RegisterU__UserL__11558062")
+  Users         Users         @relation(fields: [Id], references: [Id], onUpdate: NoAction, map: "FK_RegisterUsersAccess_Id")
+  LOVUserLevels LOVUserLevels @relation(fields: [UserLevelId], references: [Id], onUpdate: NoAction, map: "FK_RegisterUsersAccess_Id2")
+}
+
+model Logs {
+  Id              Int           @id(map: "PK_LogXactions") @default(autoincrement())
+  UserId          String?       @db.VarChar(100)
+  LOVOperationsId Int
+  Module          String?       @db.VarChar(50)
+  Data            String?       @db.VarChar(Max)
+  Summary         String?       @db.NVarChar(150)
+  LogDateTime     DateTime      @default(now(), map: "DF__LogXactio__LogDa__246854D6")
+  Agent           String?       @db.VarChar(1000)
+  LOVOperations   LOVOperations @relation(fields: [LOVOperationsId], references: [Id], onUpdate: NoAction, map: "FK_LogXactions_LOVOperationsId")
+  Users           Users?        @relation(fields: [UserId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_LogXactions_UserId")
+}
+
+model Computers_copy {
+  Id                Int              @id(map: "PK_Computers_copy_Id") @default(autoincrement())
+  PropertyCode      String?          @db.VarChar(50)
+  UserId            String?          @db.VarChar(100)
+  ProvinceId        Int?
+  LOVDepartmentsId  Int?
+  LOVMotherBoardsId Int?
+  LOVCPUId          Int?
+  LOVGPUId          Int?
+  LOVPowerId        Int?             @default(1, map: "DF__Computers__LOVPo__47B19113")
+  LOVLaptopId       Int?
+  LOVCPUs           LOVCPUs?         @relation(fields: [LOVCPUId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_copy_LOVCPUId")
+  LOVDepartments    LOVDepartments?  @relation(fields: [LOVDepartmentsId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_copy_LOVDepartmentsId")
+  LOVGPUs           LOVGPUs?         @relation(fields: [LOVGPUId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_copy_LOVGPUId")
+  LOVLaptops        LOVLaptops?      @relation(fields: [LOVLaptopId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_copy_LOVLaptopId")
+  LOVMotherBoards   LOVMotherBoards? @relation(fields: [LOVMotherBoardsId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_copy_LOVMotherBoardsId")
+  LOVPowers         LOVPowers?       @relation(fields: [LOVPowerId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_copy_LOVPowerId")
+  Provinces         Provinces?       @relation(fields: [ProvinceId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Computers_copy_ProvinceId")
+  Users             Users?           @relation(fields: [UserId], references: [Id], onUpdate: NoAction, map: "FK_Computers_copy_UserId")
+}
+
+model Memories_copy {
+  Id          Int          @id(map: "PK_Memories_copy_Id") @default(autoincrement())
+  LOVMemoryId Int?
+  Count       Int          @default(1, map: "DF__Memories___Count__522F1F86") @db.TinyInt
+  ComputerId  Int
+  Computers   Computers    @relation(fields: [ComputerId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Memories_copy_ComputerId")
+  LOVMemories LOVMemories? @relation(fields: [LOVMemoryId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Memories_copy_LOVMemoryId")
+}
