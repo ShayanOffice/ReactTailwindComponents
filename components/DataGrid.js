@@ -46,7 +46,6 @@ export const DataGrid = ({
   const submitFilter = async (e) => {
     e?.preventDefault();
     try {
-      setCurrentPage(0);
       let req = _.cloneDeep(filterParams);
       // مرور بر ستونهای فیلتر و جایگزینی قالب جستجوی
       // Prisma.
@@ -65,6 +64,8 @@ export const DataGrid = ({
       }
       req['Identity'] = modelName; // اضافه کردن شناسه فیلتر که مربوط به کدام مدل است
       req && postFilterParams && (await postFilterParams(req));
+      setCurrentPage(0);
+      setPageNum(1);
     } catch (err) {
       toast.error(`.فیلتراعمال نمیشود${err}`);
     }
